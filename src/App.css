@@ -1156,4 +1156,121 @@
   color: #dc2626;
 }
 
+/* ===== Custom Gradient Picker ===== */
+
+.custom-gradient-picker {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+.picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.picker-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.picker-control input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.picker-control input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.picker-control input[type="color"]::-webkit-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.hex-text, .angle-text {
+  font-size: 11px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.angle-text {
+  min-width: 32px;
+  text-align: right;
+}
+
+.picker-control input[type="range"] {
+  -webkit-appearance: none;
+  width: 70px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+  cursor: pointer;
+  accent-color: #38bdf8;
+}
+
+.preset-edit-icon {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s;
+}
+
+.bg-preset:hover .preset-edit-icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Light Theme overrides for custom gradient picker */
+
+.app.theme-light .custom-gradient-picker {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.app.theme-light .picker-row {
+  color: #475569;
+}
+
+.app.theme-light .picker-control input[type="color"]::-webkit-color-swatch {
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.app.theme-light .hex-text, .app.theme-light .angle-text {
+  color: #1e293b;
+}
+
+.app.theme-light .picker-control input[type="range"] {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.app.theme-light .preset-edit-icon {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.app.theme-light .bg-preset:hover .preset-edit-icon {
+  color: #0284c7;
+}
+
+
 

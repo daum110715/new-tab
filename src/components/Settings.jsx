@@ -58,7 +58,68 @@ function Settings({ settings, onUpdate, onClose }) {
                 )}
               </button>
             ))}
+
+            <button
+              className={`bg-preset ${settings.bgType === 'customGradient' ? 'active' : ''}`}
+              style={{
+                background: `linear-gradient(${settings.customGradientAngle || 135}deg, ${settings.customGradientStart || '#c2e9fb'}, ${settings.customGradientEnd || '#a1c4fd'})`
+              }}
+              onClick={() => onUpdate('bgType', 'customGradient')}
+              title="自定义渐变"
+              type="button"
+            >
+              {settings.bgType === 'customGradient' ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="preset-check">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="preset-edit-icon">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+              )}
+            </button>
           </div>
+
+          {settings.bgType === 'customGradient' && (
+            <div className="custom-gradient-picker">
+              <div className="picker-row">
+                <span>起点</span>
+                <div className="picker-control">
+                  <input
+                    type="color"
+                    value={settings.customGradientStart || '#c2e9fb'}
+                    onChange={(e) => onUpdate('customGradientStart', e.target.value)}
+                  />
+                  <span className="hex-text">{settings.customGradientStart || '#c2e9fb'}</span>
+                </div>
+              </div>
+              <div className="picker-row">
+                <span>终点</span>
+                <div className="picker-control">
+                  <input
+                    type="color"
+                    value={settings.customGradientEnd || '#a1c4fd'}
+                    onChange={(e) => onUpdate('customGradientEnd', e.target.value)}
+                  />
+                  <span className="hex-text">{settings.customGradientEnd || '#a1c4fd'}</span>
+                </div>
+              </div>
+              <div className="picker-row">
+                <span>角度</span>
+                <div className="picker-control range-control">
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    value={settings.customGradientAngle || 135}
+                    onChange={(e) => onUpdate('customGradientAngle', e.target.value)}
+                  />
+                  <span className="angle-text">{settings.customGradientAngle || 135}°</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <button
             className={`bg-bing-btn ${settings.bgType === 'dynamic' ? 'active' : ''}`}

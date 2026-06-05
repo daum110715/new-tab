@@ -18,6 +18,9 @@ const DEFAULT_SETTINGS = {
   bgType: 'dynamic',
   bgPreset: 'azure',
   customBgUrl: '',
+  customGradientStart: '#c2e9fb',
+  customGradientEnd: '#a1c4fd',
+  customGradientAngle: '135',
   clockFormat: '24h',
   showDate: true,
   showSeconds: false,
@@ -55,8 +58,12 @@ function App() {
       ? 'https://bing.img.run/1920x1080.php'
       : settings.customBgUrl
 
+  const currentBgCss = settings.bgType === 'customGradient'
+    ? `linear-gradient(${settings.customGradientAngle || 135}deg, ${settings.customGradientStart || '#c2e9fb'}, ${settings.customGradientEnd || '#a1c4fd'})`
+    : preset.css
+
   return (
-    <div className={`app ${settings.theme === 'light' ? 'theme-light' : 'theme-dark'}`} style={{ background: settings.bgType === 'dynamic' ? (settings.theme === 'light' ? '#f4f4f7' : '#080811') : (needsImage ? '#1a1a2e' : preset.css) }}>
+    <div className={`app ${settings.theme === 'light' ? 'theme-light' : 'theme-dark'}`} style={{ background: settings.bgType === 'dynamic' ? (settings.theme === 'light' ? '#f4f4f7' : '#080811') : (needsImage ? '#1a1a2e' : currentBgCss) }}>
       {settings.bgType === 'dynamic' && <DynamicBackground theme={settings.theme} />}
       {needsImage && imageUrl && (
         <>
