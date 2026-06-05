@@ -532,7 +532,11 @@ function Settings({ settings, onUpdate, onClose }) {
             onClick={() => onUpdate('bgType', 'dynamic')}
             type="button"
           >
-            <span className="bg-bing-icon">✨</span>
+            <span className="bg-bing-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-bing-icon-svg">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z" />
+              </svg>
+            </span>
             动态流光
             <span className="bg-bing-tag">Canvas</span>
           </button>
@@ -541,7 +545,13 @@ function Settings({ settings, onUpdate, onClose }) {
             className={`bg-bing-btn ${settings.bgType === 'bing' ? 'active' : ''}`}
             onClick={() => onUpdate('bgType', 'bing')}
           >
-            <span className="bg-bing-icon">🌄</span>
+            <span className="bg-bing-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-bing-icon-svg">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </span>
             每日一图
             <span className="bg-bing-tag">Bing</span>
           </button>
