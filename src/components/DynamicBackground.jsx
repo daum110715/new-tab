@@ -70,28 +70,30 @@ function DynamicBackground({ type = 'dynamic', theme }) {
     ]
 
     // --- 2. State for Particles (Constellation) ---
-    // Using 50 particles for a very fresh, clean, uncluttered layout
-    const particles = Array.from({ length: 50 }).map(() => ({
+    // Increased particle count and radius for better visibility
+    const particles = Array.from({ length: 75 }).map(() => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.25, // Extremely slow drift
-      vy: (Math.random() - 0.5) * 0.25,
-      radius: Math.random() * 1.2 + 0.8, // Tiny dots
+      vx: (Math.random() - 0.5) * 0.3, // Extremely slow drift
+      vy: (Math.random() - 0.5) * 0.3,
+      radius: Math.random() * 1.5 + 1.1, // Visible dots
     }))
 
     // --- 3. State for Aurora Sine Waves ---
+    // Increased opacity for beautiful glow visibility
     const auroraWaves = [
-      { freq: 0.0015, amp: 40, base: 0.70, speed: 0.001, colorDark: 'rgba(45, 212, 191, 0.06)', colorLight: 'rgba(45, 212, 191, 0.04)' },  // Teal
-      { freq: 0.0022, amp: 30, base: 0.78, speed: -0.0008, colorDark: 'rgba(59, 130, 246, 0.05)', colorLight: 'rgba(59, 130, 246, 0.03)' }, // Blue
-      { freq: 0.0010, amp: 50, base: 0.65, speed: 0.0005, colorDark: 'rgba(129, 140, 248, 0.04)', colorLight: 'rgba(129, 140, 248, 0.02)' }  // Indigo
+      { freq: 0.0015, amp: 40, base: 0.70, speed: 0.001, colorDark: 'rgba(45, 212, 191, 0.22)', colorLight: 'rgba(45, 212, 191, 0.12)' },  // Teal
+      { freq: 0.0022, amp: 30, base: 0.78, speed: -0.0008, colorDark: 'rgba(59, 130, 246, 0.20)', colorLight: 'rgba(59, 130, 246, 0.10)' }, // Blue
+      { freq: 0.0010, amp: 50, base: 0.65, speed: 0.0005, colorDark: 'rgba(129, 140, 248, 0.18)', colorLight: 'rgba(129, 140, 248, 0.08)' }  // Indigo
     ]
     const auroraPhases = [0, 0, 0]
 
     // --- 4. State for Starfield (3D Warp) ---
+    // Increased star count, speed and spread for beautiful full-screen star flight
     const maxDepth = 1000
-    const stars = Array.from({ length: 120 }).map(() => {
-      const x = (Math.random() - 0.5) * canvas.width * 2
-      const y = (Math.random() - 0.5) * canvas.height * 2
+    const stars = Array.from({ length: 220 }).map(() => {
+      const x = (Math.random() - 0.5) * canvas.width * 2.5
+      const y = (Math.random() - 0.5) * canvas.height * 2.5
       const z = Math.random() * maxDepth
       return {
         x,
@@ -176,7 +178,8 @@ function DynamicBackground({ type = 'dynamic', theme }) {
 
       } else if (currentType === 'particles') {
         // --- 2. RENDER PARTICLES (CONSTELLATION NET) ---
-        const dotColor = currentTheme === 'light' ? 'rgba(30, 41, 59, 0.2)' : 'rgba(147, 197, 253, 0.35)'
+        // Increased visibility opacity
+        const dotColor = currentTheme === 'light' ? 'rgba(30, 41, 59, 0.45)' : 'rgba(147, 197, 253, 0.70)'
         const lineColor = currentTheme === 'light' ? '30, 41, 59' : '147, 197, 253'
 
         // Move and draw particles
@@ -204,7 +207,7 @@ function DynamicBackground({ type = 'dynamic', theme }) {
           ctx.fill()
         })
 
-        // Draw connections
+        // Draw connections with slightly higher alpha
         for (let i = 0; i < particles.length; i++) {
           const p1 = particles[i]
           for (let j = i + 1; j < particles.length; j++) {
@@ -214,7 +217,7 @@ function DynamicBackground({ type = 'dynamic', theme }) {
             const dist = Math.sqrt(dx*dx + dy*dy)
 
             if (dist < 90) {
-              const alpha = (1 - dist / 90) * (currentTheme === 'light' ? 0.05 : 0.12)
+              const alpha = (1 - dist / 90) * (currentTheme === 'light' ? 0.12 : 0.28)
               ctx.strokeStyle = `rgba(${lineColor}, ${alpha})`
               ctx.lineWidth = 0.5
               ctx.beginPath()
@@ -229,7 +232,7 @@ function DynamicBackground({ type = 'dynamic', theme }) {
           const dy = p1.y - mouse.y
           const dist = Math.sqrt(dx*dx + dy*dy)
           if (dist < 110) {
-            const alpha = (1 - dist / 110) * (currentTheme === 'light' ? 0.08 : 0.16)
+            const alpha = (1 - dist / 110) * (currentTheme === 'light' ? 0.18 : 0.38)
             ctx.strokeStyle = `rgba(${lineColor}, ${alpha})`
             ctx.lineWidth = 0.6
             ctx.beginPath()
@@ -278,14 +281,14 @@ function DynamicBackground({ type = 'dynamic', theme }) {
         const centerY = canvas.height / 2 + (mouse.y - canvas.height / 2) * 0.06
 
         stars.forEach((star) => {
-          // Move forward slowly (fresh, calm space flight)
-          star.z -= 0.6
+          // Move forward slowly but visibly
+          star.z -= 1.2
 
           // Reset when close to screen
           if (star.z <= 10) {
             star.z = maxDepth
-            star.x = (Math.random() - 0.5) * canvas.width * 2
-            star.y = (Math.random() - 0.5) * canvas.height * 2
+            star.x = (Math.random() - 0.5) * canvas.width * 2.5
+            star.y = (Math.random() - 0.5) * canvas.height * 2.5
             star.prevZ = star.z
           }
 
@@ -300,10 +303,11 @@ function DynamicBackground({ type = 'dynamic', theme }) {
 
           // Only draw if inside viewport boundaries
           if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
-            const alpha = (1 - star.z / maxDepth)
+            // Keep stars slightly visible even in depth
+            const alpha = (1 - star.z / maxDepth) * 0.75 + 0.25
 
             // 1. Draw subtle motion trail
-            const trailAlpha = alpha * (currentTheme === 'light' ? 0.04 : 0.08)
+            const trailAlpha = alpha * (currentTheme === 'light' ? 0.08 : 0.20)
             ctx.strokeStyle = currentTheme === 'light' 
               ? `rgba(30, 41, 59, ${trailAlpha})` 
               : `rgba(147, 197, 253, ${trailAlpha})`
@@ -314,11 +318,11 @@ function DynamicBackground({ type = 'dynamic', theme }) {
             ctx.stroke()
 
             // 2. Draw star dot
-            const dotAlpha = alpha * (currentTheme === 'light' ? 0.4 : 0.75)
+            const dotAlpha = alpha * (currentTheme === 'light' ? 0.55 : 0.85)
             ctx.fillStyle = currentTheme === 'light'
               ? `rgba(30, 41, 59, ${dotAlpha})`
               : `rgba(255, 255, 255, ${dotAlpha})`
-            const radius = (1 - star.z / maxDepth) * 1.2
+            const radius = (1 - star.z / maxDepth) * 2.2 + 0.8
             ctx.beginPath()
             ctx.arc(px, py, radius, 0, Math.PI * 2)
             ctx.fill()
@@ -349,7 +353,7 @@ function DynamicBackground({ type = 'dynamic', theme }) {
         height: '100vh',
         zIndex: 0,
         filter: type === 'dynamic' ? 'blur(110px) saturate(1.8)' : 'none', // Only blur organic blobs!
-        opacity: type === 'dynamic' ? 0.9 : 0.8,
+        opacity: 1.0, // Fully opaque canvas to let JS draw alpha directly
         pointerEvents: 'none',
         background: theme === 'light' ? '#f4f4f7' : '#080811',
         transition: 'background 0.6s ease',
