@@ -119,7 +119,7 @@
   height: 36px;
   border-radius: 12px;
   border: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
   color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   font-weight: 600;
@@ -131,7 +131,7 @@
 }
 
 .engine-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
