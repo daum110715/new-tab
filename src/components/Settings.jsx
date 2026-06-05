@@ -510,11 +510,11 @@ function Settings({ settings, onUpdate, onClose }) {
               className="bg-bing-icon theme-toggle-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                onUpdate('theme', settings.theme === 'dark' ? 'light' : 'dark');
+                onUpdate('dynamicBgTheme', (settings.dynamicBgTheme || 'dark') === 'dark' ? 'light' : 'dark');
               }}
-              title={settings.theme === 'dark' ? "切换为浅色主题" : "切换为深色主题"}
+              title={(settings.dynamicBgTheme || 'dark') === 'dark' ? "切换为浅色主题" : "切换为深色主题"}
             >
-              {settings.theme === 'dark' ? (
+              {(settings.dynamicBgTheme || 'dark') === 'dark' ? (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                 </svg>
@@ -557,6 +557,17 @@ function Settings({ settings, onUpdate, onClose }) {
             <button className="settings-apply-btn" onClick={applyCustomBg}>
               应用
             </button>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h3>常规</h3>
+          <div className="settings-row">
+            <span>深色模式</span>
+            <Toggle
+              checked={settings.theme === 'dark'}
+              onChange={(v) => onUpdate('theme', v ? 'dark' : 'light')}
+            />
           </div>
         </div>
 
