@@ -7,11 +7,11 @@ import DynamicBackground from './components/DynamicBackground'
 import './App.css'
 
 export const BG_PRESETS = [
-  { id: 'azure', name: '天青', css: 'linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%)' },
-  { id: 'mint', name: '薄荷', css: 'linear-gradient(135deg, #43cea2 0%, #185a9d 100%)' },
-  { id: 'dusk', name: '晚霞', css: 'linear-gradient(135deg, #fc466b 0%, #3f5efb 100%)' },
-  { id: 'peach', name: '蜜桃', css: 'linear-gradient(135deg, #ed6ea0 0%, #ec8c69 100%)' },
-  { id: 'starry', name: '星空', css: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+  { id: 'azure', name: '天青', css: 'linear-gradient(135deg, #c2e9fb 0%, #a1c4fd 100%)' }, // Fresh Sky Blue
+  { id: 'mint', name: '薄荷', css: 'linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%)' },  // Fresh Soft Mint
+  { id: 'dusk', name: '晚霞', css: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },  // Fresh Soft Peach
+  { id: 'peach', name: '蜜桃', css: 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)' }, // Warm Pink to Pale Blue
+  { id: 'starry', name: '星空', css: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' }, // Lavender to Blue
 ]
 
 const DEFAULT_SETTINGS = {
@@ -21,6 +21,7 @@ const DEFAULT_SETTINGS = {
   clockFormat: '24h',
   showDate: true,
   showSeconds: false,
+  theme: 'dark',
 }
 
 function App() {
@@ -55,8 +56,8 @@ function App() {
       : settings.customBgUrl
 
   return (
-    <div className="app" style={{ background: settings.bgType === 'dynamic' ? '#080811' : (needsImage ? '#1a1a2e' : preset.css) }}>
-      {settings.bgType === 'dynamic' && <DynamicBackground />}
+    <div className={`app ${settings.theme === 'light' ? 'theme-light' : 'theme-dark'}`} style={{ background: settings.bgType === 'dynamic' ? (settings.theme === 'light' ? '#f4f4f7' : '#080811') : (needsImage ? '#1a1a2e' : preset.css) }}>
+      {settings.bgType === 'dynamic' && <DynamicBackground theme={settings.theme} />}
       {needsImage && imageUrl && (
         <>
           <img

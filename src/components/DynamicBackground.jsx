@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react'
 
-function DynamicBackground() {
+function DynamicBackground({ theme }) {
   const canvasRef = useRef(null)
+  const themeRef = useRef(theme)
+
+  useEffect(() => {
+    themeRef.current = theme
+  }, [theme])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -17,16 +22,23 @@ function DynamicBackground() {
     resize()
     window.addEventListener('resize', resize)
 
-    // Palette: Sleek, high-contrast digital neon colors
-    const colors = [
-      '#4f46e5', // Deep Indigo (Indigo 600)
-      '#06b6d4', // Vibrant Cyan (Cyan 500)
-      '#d946ef', // Neon Fuchsia (Fuchsia 500)
-      '#8b5cf6', // Electric Purple (Purple 500)
+    // Palette definitions
+    const darkPalette = [
+      '#3b82f6', // Fresh Sky Blue
+      '#0d9488', // Clean Teal
+      '#10b981', // Mint Green
+      '#6366f1', // Soft Indigo
     ]
 
-    // Create organic moving blobs
-    const blobs = colors.map((color, i) => {
+    const lightPalette = [
+      'rgba(56, 189, 248, 0.18)',  // Soft Sky Blue
+      'rgba(45, 212, 191, 0.18)',  // Fresh Teal
+      'rgba(52, 211, 153, 0.15)',  // Mint Green
+      'rgba(129, 140, 248, 0.18)', // Soft Indigo
+    ]
+
+    // Create organic moving blobs (4 items)
+    const blobs = Array.from({ length: 4 }).map((_, i) => {
       const radius = Math.min(canvas.width, canvas.height) * (0.28 + Math.random() * 0.15)
       return {
         x: Math.random() * canvas.width,
@@ -34,7 +46,6 @@ function DynamicBackground() {
         vx: (Math.random() - 0.5) * 1.0,
         vy: (Math.random() - 0.5) * 1.0,
         radius,
-        color,
         tx: Math.random() * canvas.width,
         ty: Math.random() * canvas.height,
       }
@@ -56,13 +67,17 @@ function DynamicBackground() {
 
     // Animation loop
     const animate = () => {
-      // Render deep cosmic backdrop
-      ctx.fillStyle = '#080811'
+      const currentTheme = themeRef.current
+
+      // Clear screen with current theme background color
+      ctx.fillStyle = currentTheme === 'light' ? '#f4f4f7' : '#080811'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       // Smooth mouse position interpolation
       mouse.x += (mouse.tx - mouse.x) * 0.05
       mouse.y += (mouse.ty - mouse.y) * 0.05
+
+      const activePalette = currentTheme === 'light' ? lightPalette : darkPalette
 
       blobs.forEach((blob, index) => {
         // If near target, select a new target coordinate
@@ -100,7 +115,8 @@ function DynamicBackground() {
           blob.x, blob.y, 0,
           blob.x, blob.y, blob.radius
         )
-        gradient.addColorStop(0, blob.color)
+        const color = activePalette[index % activePalette.length]
+        gradient.addColorStop(0, color)
         gradient.addColorStop(1, 'transparent')
 
         ctx.fillStyle = gradient
@@ -109,12 +125,15 @@ function DynamicBackground() {
         ctx.fill()
       })
 
-      // Add a subtle white-blue ambient highlight following the mouse cursor
+      // Add a subtle ambient highlight following the mouse cursor
       const mouseGradient = ctx.createRadialGradient(
         mouse.x, mouse.y, 0,
         mouse.x, mouse.y, 200
       )
-      mouseGradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)') // Indigo highlights
+      const highlightColor = currentTheme === 'light' 
+        ? 'rgba(56, 189, 248, 0.08)' 
+        : 'rgba(45, 212, 191, 0.15)'
+      mouseGradient.addColorStop(0, highlightColor)
       mouseGradient.addColorStop(1, 'transparent')
       ctx.fillStyle = mouseGradient
       ctx.beginPath()
@@ -146,7 +165,8 @@ function DynamicBackground() {
         filter: 'blur(110px) saturate(1.8)',
         opacity: 0.9,
         pointerEvents: 'none',
-        background: '#080811',
+        background: theme === 'light' ? '#f4f4f7' : '#080811',
+        transition: 'background 0.6s ease',
       }}
     />
   )
