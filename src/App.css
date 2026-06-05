@@ -1185,27 +1185,20 @@
   gap: 8px;
 }
 
-.picker-control input[type="color"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+.custom-color-swatch {
   width: 24px;
   height: 24px;
-  border: none;
   border-radius: 50%;
-  cursor: pointer;
-  background: transparent;
-  padding: 0;
-}
-
-.picker-control input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.picker-control input[type="color"]::-webkit-color-swatch {
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+  cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.custom-color-swatch:hover {
+  transform: scale(1.1);
 }
 
 .hex-text, .angle-text {
@@ -1251,9 +1244,9 @@
   color: #475569;
 }
 
-.app.theme-light .picker-control input[type="color"]::-webkit-color-swatch {
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+.app.theme-light .custom-color-swatch {
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .app.theme-light .hex-text, .app.theme-light .angle-text {
