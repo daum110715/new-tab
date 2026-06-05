@@ -473,11 +473,12 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: none;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   padding: 0;
+  outline: none;
 }
 
 .bg-preset:hover {
@@ -486,9 +487,8 @@
 }
 
 .bg-preset.active {
-  border-color: #38bdf8;
   transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 0 2px #38bdf8, 0 4px 12px rgba(56, 189, 248, 0.25);
 }
 
 .preset-check {
