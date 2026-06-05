@@ -54,6 +54,15 @@ function Settings({ settings, onUpdate, onClose }) {
           </div>
 
           <button
+            className={`bg-bing-btn ${settings.bgType === 'dynamic' ? 'active' : ''}`}
+            onClick={() => onUpdate('bgType', 'dynamic')}
+          >
+            <span className="bg-bing-icon">✨</span>
+            动态流光
+            <span className="bg-bing-tag">Canvas</span>
+          </button>
+
+          <button
             className={`bg-bing-btn ${settings.bgType === 'bing' ? 'active' : ''}`}
             onClick={() => onUpdate('bgType', 'bing')}
           >

@@ -3,6 +3,7 @@ import Clock from './components/Clock'
 import SearchBar from './components/SearchBar'
 import Bookmarks from './components/Bookmarks'
 import Settings from './components/Settings'
+import DynamicBackground from './components/DynamicBackground'
 import './App.css'
 
 export const BG_PRESETS = [
@@ -14,7 +15,7 @@ export const BG_PRESETS = [
 ]
 
 const DEFAULT_SETTINGS = {
-  bgType: 'bing',
+  bgType: 'dynamic',
   bgPreset: 'azure',
   customBgUrl: '',
   clockFormat: '24h',
@@ -53,12 +54,9 @@ function App() {
       ? 'https://bing.img.run/1920x1080.php'
       : settings.customBgUrl
 
-  const bgStyle = needsImage
-    ? { background: preset.css }
-    : { background: preset.css }
-
   return (
-    <div className="app" style={{ background: needsImage ? '#1a1a2e' : preset.css }}>
+    <div className="app" style={{ background: settings.bgType === 'dynamic' ? '#080811' : (needsImage ? '#1a1a2e' : preset.css) }}>
+      {settings.bgType === 'dynamic' && <DynamicBackground />}
       {needsImage && imageUrl && (
         <>
           <img
