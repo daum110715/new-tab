@@ -1624,6 +1624,52 @@
   border-color: rgba(0, 0, 0, 0.1);
 }
 
+/* ===== Header Actions & Global Theme Toggle ===== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-theme-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.header-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: scale(1.05);
+}
+
+.header-theme-toggle svg {
+  transition: transform 0.3s ease;
+}
+
+.header-theme-toggle:hover svg {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.app.theme-light .header-theme-toggle {
+  background: rgba(0, 0, 0, 0.05);
+  color: #64748b;
+}
+
+.app.theme-light .header-theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+}
+
+
 
 
 

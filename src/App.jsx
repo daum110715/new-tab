@@ -25,7 +25,6 @@ const DEFAULT_SETTINGS = {
   showDate: true,
   showSeconds: false,
   theme: 'dark',
-  dynamicBgTheme: 'dark',
 }
 
 function App() {
@@ -63,13 +62,9 @@ function App() {
     ? `linear-gradient(${settings.customGradientAngle || 135}deg, ${settings.customGradientStart || '#c2e9fb'}, ${settings.customGradientEnd || '#a1c4fd'})`
     : preset.css
 
-  const activeTheme = settings.bgType === 'dynamic'
-    ? (settings.dynamicBgTheme || 'dark')
-    : settings.theme
-
   return (
-    <div className={`app ${activeTheme === 'light' ? 'theme-light' : 'theme-dark'}`} style={{ background: settings.bgType === 'dynamic' ? (activeTheme === 'light' ? '#f4f4f7' : '#080811') : (needsImage ? '#1a1a2e' : currentBgCss) }}>
-      {settings.bgType === 'dynamic' && <DynamicBackground theme={activeTheme} />}
+    <div className={`app ${settings.theme === 'light' ? 'theme-light' : 'theme-dark'}`} style={{ background: settings.bgType === 'dynamic' ? (settings.theme === 'light' ? '#f4f4f7' : '#080811') : (needsImage ? '#1a1a2e' : currentBgCss) }}>
+      {settings.bgType === 'dynamic' && <DynamicBackground theme={settings.theme} />}
       {needsImage && imageUrl && (
         <>
           <img
