@@ -1,6 +1,71 @@
 import { useState } from 'react'
 import { BG_PRESETS } from '../App'
 
+// Helper to convert Hex to HSL
+function hexToHsl(hex) {
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
+  const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b)
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex)
+  if (!result) return { h: 0, s: 100, l: 50 }
+
+  let r = parseInt(result[1], 16) / 255
+  let g = parseInt(result[2], 16) / 255
+  let b = parseInt(result[3], 16) / 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h, s, l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0
+  } else {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break
+      case g: h = (b - r) / d + 2; break
+      case b: h = (r - g) / d + 4; break
+    }
+    h /= 6
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100)
+  }
+}
+
+// Helper to convert HSL to Hex
+function hslToHex(h, s, l) {
+  h /= 360
+  s /= 100
+  l /= 100
+  let r, g, b
+  if (s === 0) {
+    r = g = b = l
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1
+      if (t > 1) t -= 1
+      if (t < 1/6) return p + (q - p) * 6 * t
+      if (t < 1/2) return q
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
+      return p
+    }
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+    const p = 2 * l - q
+    r = hue2rgb(p, q, h + 1/3)
+    g = hue2rgb(p, q, h)
+    b = hue2rgb(p, q, h - 1/3)
+  }
+  const toHex = x => {
+    const hex = Math.round(x * 255).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
 function Toggle({ checked, onChange }) {
   return (
     <button
@@ -15,6 +80,34 @@ function Toggle({ checked, onChange }) {
 
 function Settings({ settings, onUpdate, onClose }) {
   const [customUrl, setCustomUrl] = useState(settings.customBgUrl || '')
+  const [activePicker, setActivePicker] = useState(null) // 'start' | 'end' | null
+
+  const RECOMMENDED_COLORS = [
+    '#c2e9fb', // Ice Blue
+    '#a1c4fd', // Soft Blue
+    '#e0f2f1', // Mint Pale
+    '#b2dfdb', // Teal Light
+    '#ffecd2', // Soft Apricot
+    '#fcb69f', // Peach Pink
+    '#e0c3fc', // Lilac Purple
+    '#fbc2eb', // Sakura Pink
+  ]
+
+  const activeColorValue = activePicker === 'start'
+    ? (settings.customGradientStart || '#c2e9fb')
+    : (settings.customGradientEnd || '#a1c4fd')
+
+  const activeHsl = hexToHsl(activeColorValue)
+
+  function handleHslChange(key, val) {
+    const newHsl = { ...activeHsl, [key]: val }
+    const hex = hslToHex(newHsl.h, newHsl.s, newHsl.l)
+    onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', hex)
+  }
+
+  function handlePaletteSelect(color) {
+    onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', color)
+  }
 
   function applyCustomBg() {
     const url = customUrl.trim()
@@ -86,10 +179,11 @@ function Settings({ settings, onUpdate, onClose }) {
               <div className="picker-row">
                 <span>起点</span>
                 <div className="picker-control">
-                  <input
-                    type="color"
-                    value={settings.customGradientStart || '#c2e9fb'}
-                    onChange={(e) => onUpdate('customGradientStart', e.target.value)}
+                  <button
+                    className="custom-color-swatch"
+                    style={{ backgroundColor: settings.customGradientStart || '#c2e9fb' }}
+                    onClick={() => setActivePicker(activePicker === 'start' ? null : 'start')}
+                    type="button"
                   />
                   <span className="hex-text">{settings.customGradientStart || '#c2e9fb'}</span>
                 </div>
@@ -97,10 +191,11 @@ function Settings({ settings, onUpdate, onClose }) {
               <div className="picker-row">
                 <span>终点</span>
                 <div className="picker-control">
-                  <input
-                    type="color"
-                    value={settings.customGradientEnd || '#a1c4fd'}
-                    onChange={(e) => onUpdate('customGradientEnd', e.target.value)}
+                  <button
+                    className="custom-color-swatch"
+                    style={{ backgroundColor: settings.customGradientEnd || '#a1c4fd' }}
+                    onClick={() => setActivePicker(activePicker === 'end' ? null : 'end')}
+                    type="button"
                   />
                   <span className="hex-text">{settings.customGradientEnd || '#a1c4fd'}</span>
                 </div>
@@ -118,6 +213,83 @@ function Settings({ settings, onUpdate, onClose }) {
                   <span className="angle-text">{settings.customGradientAngle || 135}°</span>
                 </div>
               </div>
+
+              {/* Custom styled HSL picker popover */}
+              {activePicker && (
+                <div className="custom-color-popover">
+                  <div className="popover-header">
+                    <h4>{activePicker === 'start' ? '调整起点颜色' : '调整终点颜色'}</h4>
+                    <button className="popover-close-btn" onClick={() => setActivePicker(null)} type="button">✕</button>
+                  </div>
+
+                  <div className="hsl-sliders">
+                    <div className="slider-group">
+                      <label>
+                        <span>色相</span>
+                        <span>{activeHsl.h}°</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="360"
+                        value={activeHsl.h}
+                        onChange={(e) => handleHslChange('h', parseInt(e.target.value))}
+                        className="hue-slider"
+                      />
+                    </div>
+
+                    <div className="slider-group">
+                      <label>
+                        <span>饱和度</span>
+                        <span>{activeHsl.s}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={activeHsl.s}
+                        onChange={(e) => handleHslChange('s', parseInt(e.target.value))}
+                        style={{
+                          background: `linear-gradient(to right, hsl(${activeHsl.h}, 0%, ${activeHsl.l}%), hsl(${activeHsl.h}, 100%, ${activeHsl.l}%))`
+                        }}
+                      />
+                    </div>
+
+                    <div className="slider-group">
+                      <label>
+                        <span>亮度</span>
+                        <span>{activeHsl.l}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={activeHsl.l}
+                        onChange={(e) => handleHslChange('l', parseInt(e.target.value))}
+                        style={{
+                          background: `linear-gradient(to right, #000, hsl(${activeHsl.h}, ${activeHsl.s}%, 50%), #fff)`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="quick-palette-section">
+                    <h5>推荐清新色</h5>
+                    <div className="quick-palette-grid">
+                      {RECOMMENDED_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          className="palette-color-btn"
+                          style={{ backgroundColor: color }}
+                          onClick={() => handlePaletteSelect(color)}
+                          title={color}
+                          type="button"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
