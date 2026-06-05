@@ -542,6 +542,55 @@ function Settings({ settings, onUpdate, onClose }) {
           </button>
 
           <button
+            className={`bg-bing-btn ${settings.bgType === 'particles' ? 'active' : ''}`}
+            onClick={() => onUpdate('bgType', 'particles')}
+            type="button"
+          >
+            <span className="bg-bing-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-bing-icon-svg">
+                <circle cx="12" cy="12" r="3" />
+                <circle cx="6" cy="6" r="1" />
+                <circle cx="18" cy="18" r="1" />
+                <circle cx="18" cy="6" r="1.3" />
+                <circle cx="6" cy="18" r="1.3" />
+                <path d="M6 6l6 6m0 0l6 6m-6-6l6-6m-6 6l-6 6" />
+              </svg>
+            </span>
+            星海粒子
+            <span className="bg-bing-tag">Canvas</span>
+          </button>
+
+          <button
+            className={`bg-bing-btn ${settings.bgType === 'aurora' ? 'active' : ''}`}
+            onClick={() => onUpdate('bgType', 'aurora')}
+            type="button"
+          >
+            <span className="bg-bing-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-bing-icon-svg">
+                <path d="M2 8s3-2.5 7-2.5 7 2.5 10 2.5 3-2.5 3-2.5" />
+                <path d="M2 13s3-2.5 7-2.5 7 2.5 10 2.5 3-2.5 3-2.5" />
+                <path d="M2 18s3-2.5 7-2.5 7 2.5 10 2.5 3-2.5 3-2.5" />
+              </svg>
+            </span>
+            极光微澜
+            <span className="bg-bing-tag">Canvas</span>
+          </button>
+
+          <button
+            className={`bg-bing-btn ${settings.bgType === 'starfield' ? 'active' : ''}`}
+            onClick={() => onUpdate('bgType', 'starfield')}
+            type="button"
+          >
+            <span className="bg-bing-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-bing-icon-svg">
+                <path d="M12 2v20M2 12h20M5.6 5.6l12.8 12.8M5.6 18.4L18.4 5.6" />
+              </svg>
+            </span>
+            三维穿梭
+            <span className="bg-bing-tag">Canvas</span>
+          </button>
+
+          <button
             className={`bg-bing-btn ${settings.bgType === 'bing' ? 'active' : ''}`}
             onClick={() => onUpdate('bgType', 'bing')}
           >
