@@ -1,12 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BG_PRESETS } from '../App'
 
-// Helper to convert Hex to HSL
-function hexToHsl(hex) {
+// Helper to convert Hex to RGB
+function hexToRgb(hex) {
   const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
   const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b)
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex)
-  if (!result) return { h: 0, s: 100, l: 50 }
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 255, g: 255, b: 255 }
+}
+
+// Helper to convert RGB to Hex
+function rgbToHex(r, g, b) {
+  const toHex = x => {
+    const val = Math.max(0, Math.min(255, Math.round(x)))
+    const hex = val.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+
+// Helper to convert Hex to HSV
+function hexToHsv(hex) {
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
+  const fullHex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b)
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex)
+  if (!result) return { h: 0, s: 100, v: 100 }
 
   let r = parseInt(result[1], 16) / 255
   let g = parseInt(result[2], 16) / 255
@@ -14,13 +37,15 @@ function hexToHsl(hex) {
 
   const max = Math.max(r, g, b)
   const min = Math.min(r, g, b)
-  let h, s, l = (max + min) / 2
+  const d = max - min
+
+  let h
+  let s = max === 0 ? 0 : d / max
+  let v = max
 
   if (max === min) {
-    h = s = 0
+    h = 0
   } else {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
     switch (max) {
       case r: h = (g - b) / d + (g < b ? 6 : 0); break
       case g: h = (b - r) / d + 2; break
@@ -32,33 +57,32 @@ function hexToHsl(hex) {
   return {
     h: Math.round(h * 360),
     s: Math.round(s * 100),
-    l: Math.round(l * 100)
+    v: Math.round(v * 100)
   }
 }
 
-// Helper to convert HSL to Hex
-function hslToHex(h, s, l) {
+// Helper to convert HSV to Hex
+function hsvToHex(h, s, v) {
   h /= 360
   s /= 100
-  l /= 100
+  v /= 100
+
   let r, g, b
-  if (s === 0) {
-    r = g = b = l
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1
-      if (t > 1) t -= 1
-      if (t < 1/6) return p + (q - p) * 6 * t
-      if (t < 1/2) return q
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6
-      return p
-    }
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-    const p = 2 * l - q
-    r = hue2rgb(p, q, h + 1/3)
-    g = hue2rgb(p, q, h)
-    b = hue2rgb(p, q, h - 1/3)
+  const i = Math.floor(h * 6)
+  const f = h * 6 - i
+  const p = v * (1 - s)
+  const q = v * (1 - f * s)
+  const t = v * (1 - (1 - f) * s)
+
+  switch (i % 6) {
+    case 0: r = v; g = t; b = p; break
+    case 1: r = q; g = v; b = p; break
+    case 2: r = p; g = v; b = t; break
+    case 3: r = p; g = q; b = v; break
+    case 4: r = t; g = p; b = v; break
+    case 5: r = v; g = p; b = q; break
   }
+
   const toHex = x => {
     const hex = Math.round(x * 255).toString(16)
     return hex.length === 1 ? '0' + hex : hex
@@ -81,6 +105,9 @@ function Toggle({ checked, onChange }) {
 function Settings({ settings, onUpdate, onClose }) {
   const [customUrl, setCustomUrl] = useState(settings.customBgUrl || '')
   const [activePicker, setActivePicker] = useState(null) // 'start' | 'end' | null
+  const [colorFormat, setColorFormat] = useState('hex') // 'hex' | 'rgb'
+  const [tempHex, setTempHex] = useState('')
+  const [tempRgb, setTempRgb] = useState({ r: '', g: '', b: '' })
 
   const RECOMMENDED_COLORS = [
     '#c2e9fb', // Ice Blue
@@ -97,17 +124,140 @@ function Settings({ settings, onUpdate, onClose }) {
     ? (settings.customGradientStart || '#c2e9fb')
     : (settings.customGradientEnd || '#a1c4fd')
 
-  const activeHsl = hexToHsl(activeColorValue)
+  const activeHsv = hexToHsv(activeColorValue)
 
-  function handleHslChange(key, val) {
-    const newHsl = { ...activeHsl, [key]: val }
-    const hex = hslToHex(newHsl.h, newHsl.s, newHsl.l)
+  // Sync inputs with activeColorValue when it changes from board/slider/preset
+  useEffect(() => {
+    setTempHex(activeColorValue)
+    const rgb = hexToRgb(activeColorValue)
+    setTempRgb({ r: String(rgb.r), g: String(rgb.g), b: String(rgb.b) })
+  }, [activeColorValue])
+
+  function handleHueChange(h) {
+    const hex = hsvToHex(h, activeHsv.s, activeHsv.v)
     onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', hex)
   }
 
   function handlePaletteSelect(color) {
     onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', color)
   }
+
+  const handleHexInputChange = (e) => {
+    const val = e.target.value
+    setTempHex(val)
+    
+    let hex = val
+    if (!hex.startsWith('#') && (hex.length === 3 || hex.length === 6)) {
+      hex = '#' + hex
+    }
+    
+    if (/^#[0-9A-Fa-f]{3}$/.test(hex) || /^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', hex)
+    }
+  }
+
+  const handleRgbInputChange = (channel, val) => {
+    const cleanVal = val.replace(/\D/g, '')
+    if (cleanVal === '') {
+      setTempRgb(prev => ({ ...prev, [channel]: '' }))
+      return
+    }
+    
+    let num = parseInt(cleanVal, 10)
+    num = Math.max(0, Math.min(255, num))
+    
+    const nextRgb = {
+      ...tempRgb,
+      [channel]: String(num)
+    }
+    
+    setTempRgb(nextRgb)
+    
+    const r = parseInt(nextRgb.r, 10)
+    const g = parseInt(nextRgb.g, 10)
+    const b = parseInt(nextRgb.b, 10)
+    
+    if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+      const hex = rgbToHex(r, g, b)
+      onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', hex)
+    }
+  }
+
+  const hasEyeDropper = typeof window !== 'undefined' && 'EyeDropper' in window
+
+  const handleEyeDropper = async () => {
+    if (!hasEyeDropper) return
+    try {
+      const eyeDropper = new window.EyeDropper()
+      const result = await eyeDropper.open()
+      onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', result.srgbHex)
+    } catch (err) {
+      console.log('Eyedropper closed or failed:', err)
+    }
+  }
+
+  const handleSatValMouseDown = (e) => {
+    e.preventDefault()
+    const rect = e.currentTarget.getBoundingClientRect()
+    
+    const updateColor = (clientX, clientY) => {
+      let x = (clientX - rect.left) / rect.width
+      let y = 1 - (clientY - rect.top) / rect.height
+      
+      x = Math.max(0, Math.min(1, x))
+      y = Math.max(0, Math.min(1, y))
+      
+      const hex = hsvToHex(activeHsv.h, x * 100, y * 100)
+      onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', hex)
+    }
+
+    updateColor(e.clientX, e.clientY)
+
+    const handleMouseMove = (moveEvent) => {
+      updateColor(moveEvent.clientX, moveEvent.clientY)
+    }
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+  }
+
+  const handleSatValTouchStart = (e) => {
+    e.preventDefault()
+    const rect = e.currentTarget.getBoundingClientRect()
+    
+    const updateColor = (clientX, clientY) => {
+      let x = (clientX - rect.left) / rect.width
+      let y = 1 - (clientY - rect.top) / rect.height
+      
+      x = Math.max(0, Math.min(1, x))
+      y = Math.max(0, Math.min(1, y))
+      
+      const hex = hsvToHex(activeHsv.h, x * 100, y * 100)
+      onUpdate(activePicker === 'start' ? 'customGradientStart' : 'customGradientEnd', hex)
+    }
+
+    const touch = e.touches[0]
+    updateColor(touch.clientX, touch.clientY)
+
+    const handleTouchMove = (moveEvent) => {
+      const moveTouch = moveEvent.touches[0]
+      updateColor(moveTouch.clientX, moveTouch.clientY)
+    }
+
+    const handleTouchEnd = () => {
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleTouchEnd)
+    }
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
+    window.addEventListener('touchend', handleTouchEnd)
+  }
+
 
   function applyCustomBg() {
     const url = customUrl.trim()
@@ -214,7 +364,7 @@ function Settings({ settings, onUpdate, onClose }) {
                 </div>
               </div>
 
-              {/* Custom styled HSL picker popover */}
+              {/* Custom styled 2D HSV color picker popover */}
               {activePicker && (
                 <div className="custom-color-popover">
                   <div className="popover-header">
@@ -222,55 +372,113 @@ function Settings({ settings, onUpdate, onClose }) {
                     <button className="popover-close-btn" onClick={() => setActivePicker(null)} type="button">✕</button>
                   </div>
 
-                  <div className="hsl-sliders">
-                    <div className="slider-group">
-                      <label>
-                        <span>色相</span>
-                        <span>{activeHsl.h}°</span>
-                      </label>
+                  {/* 2D Saturation-Value Canvas */}
+                  <div 
+                    className="color-picker-board"
+                    style={{ backgroundColor: `hsl(${activeHsv.h}, 100%, 50%)` }}
+                    onMouseDown={handleSatValMouseDown}
+                    onTouchStart={handleSatValTouchStart}
+                  >
+                    <div className="board-saturation-layer" />
+                    <div className="board-value-layer" />
+                    <div 
+                      className="board-cursor"
+                      style={{ 
+                        left: `${activeHsv.s}%`, 
+                        bottom: `${activeHsv.v}%` 
+                      }}
+                    />
+                  </div>
+
+                  {/* Controls Row */}
+                  <div className="color-picker-row">
+                    {hasEyeDropper && (
+                      <button 
+                        className="eyedropper-btn" 
+                        onClick={handleEyeDropper}
+                        title="吸取屏幕颜色"
+                        type="button"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 4a2 2 0 0 0-2.83 0l-8.48 8.48a6 6 0 0 1-1.42 1.42l-4.24 4.24a1 1 0 0 0 1.41 1.41l4.24-4.24a6 6 0 0 1 1.42-1.42l8.48-8.48A2 2 0 0 0 21 4z" />
+                          <path d="M16 8l3 3" />
+                          <path d="m9 11-4 4v4h4l4-4" />
+                        </svg>
+                      </button>
+                    )}
+                    <div className="picker-preview-circle" style={{ backgroundColor: activeColorValue }} />
+                    <div className="picker-sliders-col">
                       <input
                         type="range"
                         min="0"
                         max="360"
-                        value={activeHsl.h}
-                        onChange={(e) => handleHslChange('h', parseInt(e.target.value))}
-                        className="hue-slider"
+                        value={activeHsv.h}
+                        onChange={(e) => handleHueChange(parseInt(e.target.value, 10))}
+                        className="hue-slider rainbow-slider"
                       />
                     </div>
+                  </div>
 
-                    <div className="slider-group">
-                      <label>
-                        <span>饱和度</span>
-                        <span>{activeHsl.s}%</span>
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={activeHsl.s}
-                        onChange={(e) => handleHslChange('s', parseInt(e.target.value))}
-                        style={{
-                          background: `linear-gradient(to right, hsl(${activeHsl.h}, 0%, ${activeHsl.l}%), hsl(${activeHsl.h}, 100%, ${activeHsl.l}%))`
-                        }}
-                      />
-                    </div>
-
-                    <div className="slider-group">
-                      <label>
-                        <span>亮度</span>
-                        <span>{activeHsl.l}%</span>
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={activeHsl.l}
-                        onChange={(e) => handleHslChange('l', parseInt(e.target.value))}
-                        style={{
-                          background: `linear-gradient(to right, #000, hsl(${activeHsl.h}, ${activeHsl.s}%, 50%), #fff)`
-                        }}
-                      />
-                    </div>
+                  {/* Input Fields for Hex or RGB */}
+                  <div className="color-picker-inputs">
+                    {colorFormat === 'hex' ? (
+                      <div className="input-group hex-group">
+                        <input 
+                          type="text" 
+                          value={tempHex} 
+                          onChange={handleHexInputChange}
+                          className="hex-input-box"
+                          placeholder="#c2e9fb"
+                        />
+                        <span className="input-label">HEX</span>
+                      </div>
+                    ) : (
+                      <div className="rgb-inputs-group">
+                        <div className="input-group rgb-group">
+                          <input 
+                            type="text" 
+                            value={tempRgb.r} 
+                            onChange={(e) => handleRgbInputChange('r', e.target.value)}
+                            className="rgb-input-box"
+                            placeholder="r"
+                          />
+                          <span className="input-label">R</span>
+                        </div>
+                        <div className="input-group rgb-group">
+                          <input 
+                            type="text" 
+                            value={tempRgb.g} 
+                            onChange={(e) => handleRgbInputChange('g', e.target.value)}
+                            className="rgb-input-box"
+                            placeholder="g"
+                          />
+                          <span className="input-label">G</span>
+                        </div>
+                        <div className="input-group rgb-group">
+                          <input 
+                            type="text" 
+                            value={tempRgb.b} 
+                            onChange={(e) => handleRgbInputChange('b', e.target.value)}
+                            className="rgb-input-box"
+                            placeholder="b"
+                          />
+                          <span className="input-label">B</span>
+                        </div>
+                      </div>
+                    )}
+                    <button 
+                      className="format-switch-btn" 
+                      onClick={() => setColorFormat(colorFormat === 'hex' ? 'rgb' : 'hex')}
+                      title="切换颜色格式"
+                      type="button"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="17 1 21 5 17 9" />
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                        <polyline points="7 23 3 19 7 15" />
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                      </svg>
+                    </button>
                   </div>
 
                   <div className="quick-palette-section">
