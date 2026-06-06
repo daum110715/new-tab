@@ -1,16 +1,94 @@
-# React + Vite
+# 🍃 清新毛玻璃新标签页 (New Tab Page)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个基于 React 18 + Vite 构建的、采用精致毛玻璃（Glassmorphic）视觉美学的浏览器新标签页系统。主打“清爽、极简、护眼”的设计语言，具备丰富的交互式 Canvas 物理背景、高级自定义渐变调色板与全局双色主题。
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 核心特性
 
-## React Compiler
+### 1. 精致毛玻璃界面 (Glassmorphic UI)
+- **极极简时钟与日期**：支持 12/24 小时制切换、秒针显示控制与公历日期展示。
+- **居中搜索框**：圆角微光拟物设计，支持一键输入快捷检索。
+- **书签管理墙**：支持添加、修改与删除常用网站书签，具备流畅的悬浮微缩放动效和卡片发光背景。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. 多款由程序控制的交互式背景 (Dynamic Canvas Backgrounds)
+内置 4 种由 Canvas 2D 物理与数学公式渲染的高值、低能耗动态背景：
+- **✨ 动态流光 (Organic Blobs)**：4 个有机缓动的彩色液体气泡，随目标坐标点做平移过渡，伴随鼠标产生引力位移与 110px 的高阶羽化融合。
+- **🌌 星海粒子 (Particles)**：75 个质点在屏幕中进行极慢的速度漂移，两点距离小于 90px 时建立极细的半透明 constellation 连线，支持鼠标磁吸效应。
+- **🌊 极光微澜 (Aurora Waves)**：3 层不同频率与波幅的苹果 Siri 风格正弦波缓缓波动，底部叠加高透渐变色，营造温润呼吸感的极光带。
+- **🚀 三维穿梭 (3D Starfield)**：模拟太空 3D 纵深漫步（Warp Drive），220 个星点从深空飞向视口，支持鼠标平移镜头视角（3D 视差相机），宁静开阔。
+- **🌄 静态与网络背景**：支持微软 Bing 每日一图、自定义图片 URL 引入与自定义双色线性渐变。
 
-## Expanding the ESLint configuration
+### 3. 全局高阶 2D HSV 调色板 (Custom 2D Color Picker)
+在设置自定义渐变背景时展开，完全摆脱了浏览器原生选择器的生硬感：
+- **2D HSV Canvas 选择区**：基于明度（Value）与饱和度（Saturation）的 2D 拖动及触屏轨迹选取。
+- **彩虹色相条**：线性渐变的色相调节滑条。
+- **吸色器 API 引入**：直接集成标准 `window.EyeDropper`，支持一键在屏幕任意区域提取像素色值。
+- **RGB / HEX 双向切换**：支持 HEX 输入框与 R、G、B 分量输入框（带自动 `0-255` 截断与防抖），自由一键切换输入格式。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 4. 独立全局明暗主题 (Global Light/Dark Themes)
+- 按钮提炼至设置面板右上角（关闭按钮旁），以极简的太阳/月亮图标进行一键全局切换。
+- **深色模式**：深邃半透明黑色卡片，搭配白色/浅蓝色字体与荧光悬浮效果。
+- **浅色模式**：乳白色高透卡片，搭配深灰/碳黑文本，确保在明亮底色下充足的阅读对比度。
+
+---
+
+## 🛠️ 技术选型
+
+- **核心框架**：React 18 (Hooks)
+- **构建工具**：Vite 8.0
+- **样式方案**：原生 CSS (Vanilla CSS)，实现高定制化的毛玻璃滤镜效果
+- **动画与物理**：HTML5 Canvas 2D + `requestAnimationFrame` 缓动循环
+
+---
+
+## 📂 项目结构
+
+```
+new-tab/
+├── public/                  # 静态资源
+│   ├── favicon.jpg          # 自定义清新渐变折角网站图标
+│   └── icons.svg            # 矢量图标资源
+├── src/
+│   ├── components/          # React 功能组件
+│   │   ├── Bookmarks.jsx    # 书签列表与增删改弹出窗 (Modal)
+│   │   ├── Clock.jsx        # 时钟与日期逻辑
+│   │   ├── SearchBar.jsx    # 搜索栏组件
+│   │   ├── Settings.jsx     # 设置抽屉面板与自定义 2D HSV 调色板
+│   │   ├── Weather.jsx      # 天气卡片与骨架屏加载动画
+│   │   └── DynamicBackground.jsx # Canvas 动态物理背景引擎 (流光/粒子/极光/3D)
+│   ├── App.jsx              # 应用入口、主状态机与主题计算
+│   ├── App.css              # 全局毛玻璃样式表、关键帧动画与明暗主题适配
+│   ├── index.css            # 基础排版样式重置
+│   └── main.jsx             # React DOM 渲染入口
+├── index.html               # 页面骨架（配置 favicon.jpg）
+└── package.json             # 依赖与编译运行脚本
+```
+
+---
+
+## 🚀 快速上手
+
+### 1. 安装依赖
+```bash
+npm install
+```
+
+### 2. 启动本地开发服务器 (默认端口 http://localhost:3742/)
+```bash
+npm run dev
+```
+
+### 3. 构建生产环境压缩包
+```bash
+npm run build
+```
+编译产物将输出至 `dist/` 文件夹下，包含轻量化的静态资源与压缩代码。
+
+---
+
+## 🎨 设计原则 (Design Principles)
+
+1. **Keep it Fresh (保持清新)**: 拒绝大红大绿的高饱和度配色，主色调选用冰蓝、薄荷绿、蜜桃粉和浅薰衣草紫等舒缓、降温色系。
+2. **Readability First (可读性第一)**: 无论在何种 Canvas 动态背景和明暗主题下，文本都具备足够的对比度，通过动态计算 `activeTheme` 确保视觉和谐。
+3. **Smooth Micro-interactions (顺滑微交互)**: 所有的按钮、卡片在悬浮或点击时都伴随缩放、渐变或细微的旋转动效，让页面更具呼吸感和生机。
